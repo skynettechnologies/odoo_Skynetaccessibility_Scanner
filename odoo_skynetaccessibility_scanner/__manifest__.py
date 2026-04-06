@@ -10,8 +10,8 @@
     'depends': ['base', 'web'],
     'data': [
         'models/skynet_scanner_model.xml',
-        'security/ir.model.access.csv',      
-        'views/skynet_scanner_views.xml',    
+        'security/ir.model.access.csv',     
+        'views/skynet_scanner_views.xml', 
         'views/skynet_scanner_menu.xml',     
     ],
     'images': ['/static/description/icon.png'],

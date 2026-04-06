@@ -5,7 +5,7 @@
     <!--  Model Definition                                               -->
     <!-- ═══════════════════════════════════════════════════════════════ -->
     <record id="model_x_odoo_skynetaccessibility_scanner" model="ir.model">
-        <field name="name">SkynetAccessibility Scanner</field>
+        <field name="name">Skynet Accessibility Scanner</field>
         <field name="model">x_odoo_skynetaccessibility_scanner</field>
     </record>
 
