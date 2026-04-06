@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!--  Model Definition                                               -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <record id="model_x_odoo_skynetaccessibility_scanner" model="ir.model">
+        <field name="name">SkynetAccessibility Scanner</field>
+        <field name="model">x_odoo_skynetaccessibility_scanner</field>
+    </record>
+
+    <!-- ── REQUIRED: x_name is the mandatory display-name field ────── -->
+    <!-- Odoo's base_import_module requires every custom model to have  -->
+    <!-- x_name (char). Without it the server throws a 500 on form open -->
+    <record id="field_x_name" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_name</field>
+        <field name="field_description">Name</field>
+        <field name="ttype">char</field>
+    </record>
+
+    <!-- ── Website / Domain ─────────────────────────────────────────── -->
+    <record id="field_x_website_domain" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_website_domain</field>
+        <field name="field_description">Website Domain</field>
+        <field name="ttype">char</field>
+        <field name="readonly">False</field>
+    </record>
+
+    <record id="field_x_website_id" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_website_id</field>
+        <field name="field_description">Website ID</field>
+        <field name="ttype">char</field>
+    </record>
+
+    <record id="field_x_dashboard_link" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_dashboard_link</field>
+        <field name="field_description">Dashboard Link</field>
+        <field name="ttype">char</field>
+    </record>
+
+    <record id="field_x_fav_icon" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_fav_icon</field>
+        <field name="field_description">Favicon URL</field>
+        <field name="ttype">char</field>
+    </record>
+
+    <!-- ── Plan ──────────────────────────────────────────────────────── -->
+    <record id="field_x_plan_state" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_plan_state</field>
+        <field name="field_description">Plan State</field>
+        <field name="ttype">selection</field>
+        <field name="selection">[('free','Free Plan'),('purchased','Active Plan'),('expired','Expired Plan'),('cancelled','Cancelled Plan')]</field>
+    </record>
+
+    <record id="field_x_package_name" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_package_name</field>
+        <field name="field_description">Package Name</field>
+        <field name="ttype">char</field>
+    </record>
+
+    <record id="field_x_package_id_ext" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_package_id_ext</field>
+        <field name="field_description">Package ID Ext</field>
+        <field name="ttype">char</field>
+    </record>
+
+    <record id="field_x_page_views" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_page_views</field>
+        <field name="field_description">Page Views</field>
+        <field name="ttype">char</field>
+    </record>
+
+    <record id="field_x_subscr_interval" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_subscr_interval</field>
+        <field name="field_description">Billing Interval</field>
+        <field name="ttype">char</field>
+    </record>
+
+    <record id="field_x_end_date" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_end_date</field>
+        <field name="field_description">Plan End Date</field>
+        <field name="ttype">date</field>
+    </record>
+
+    <record id="field_x_cancel_date" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_cancel_date</field>
+        <field name="field_description">Cancel Date</field>
+        <field name="ttype">date</field>
+    </record>
+
+    <record id="field_x_paypal_subscr_id" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_paypal_subscr_id</field>
+        <field name="field_description">PayPal Subscription ID</field>
+        <field name="ttype">char</field>
+    </record>
+
+    <record id="field_x_package_price" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_package_price</field>
+        <field name="field_description">Package Price</field>
+        <field name="ttype">char</field>
+    </record>
+
+    <record id="field_x_final_price" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_final_price</field>
+        <field name="field_description">Final Price</field>
+        <field name="ttype">float</field>
+    </record>
+
+    <!-- ── Plan Flags ─────────────────────────────────────────────────── -->
+    <record id="field_x_is_trial_period" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_is_trial_period</field>
+        <field name="field_description">Is Trial Period</field>
+        <field name="ttype">boolean</field>
+    </record>
+
+    <record id="field_x_is_expired" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_is_expired</field>
+        <field name="field_description">Is Expired</field>
+        <field name="ttype">boolean</field>
+    </record>
+
+    <record id="field_x_is_cancelled" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_is_cancelled</field>
+        <field name="field_description">Is Cancelled</field>
+        <field name="ttype">boolean</field>
+    </record>
+
+    <!-- ── Scan Status ────────────────────────────────────────────────── -->
+    <record id="field_x_scan_status" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_scan_status</field>
+        <field name="field_description">Scan Status</field>
+        <field name="ttype">integer</field>
+    </record>
+
+    <record id="field_x_url_scan_status" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_url_scan_status</field>
+        <field name="field_description">URL Scan Status</field>
+        <field name="ttype">integer</field>
+    </record>
+
+    <record id="field_x_total_pages" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_total_pages</field>
+        <field name="field_description">Total Pages</field>
+        <field name="ttype">integer</field>
+    </record>
+
+    <record id="field_x_total_scan_pages" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_total_scan_pages</field>
+        <field name="field_description">Total Scanned Pages</field>
+        <field name="ttype">integer</field>
+    </record>
+
+    <record id="field_x_total_selected_pages" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_total_selected_pages</field>
+        <field name="field_description">Total Selected Pages</field>
+        <field name="ttype">integer</field>
+    </record>
+
+    <record id="field_x_total_last_scan_pages" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_total_last_scan_pages</field>
+        <field name="field_description">Total Last Scan Pages</field>
+        <field name="ttype">integer</field>
+    </record>
+
+    <record id="field_x_last_url_scan" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_last_url_scan</field>
+        <field name="field_description">Last URL Scan Status</field>
+        <field name="ttype">datetime</field>
+    </record>
+
+    <record id="field_x_last_scan" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_last_scan</field>
+        <field name="field_description">Last Scan</field>
+        <field name="ttype">datetime</field>
+    </record>
+
+    <record id="field_x_next_scan_date" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_next_scan_date</field>
+        <field name="field_description">Next Scan Date</field>
+        <field name="ttype">datetime</field>
+    </record>
+
+    <!-- ── Scan Stats ─────────────────────────────────────────────────── -->
+    <record id="field_x_success_percentage" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_success_percentage</field>
+        <field name="field_description">Success Percentage</field>
+        <field name="ttype">float</field>
+    </record>
+
+    <record id="field_x_total_violations" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_total_violations</field>
+        <field name="field_description">Total Violations</field>
+        <field name="ttype">integer</field>
+    </record>
+
+    <record id="field_x_total_fail" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_total_fail</field>
+        <field name="field_description">Failed Checks</field>
+        <field name="ttype">integer</field>
+    </record>
+
+    <record id="field_x_total_success" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_total_success</field>
+        <field name="field_description">Passed Checks</field>
+        <field name="ttype">integer</field>
+    </record>
+
+    <!-- ── UI State ───────────────────────────────────────────────────── -->
+    <record id="field_x_plans_json" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_plans_json</field>
+        <field name="field_description">Plans JSON</field>
+        <field name="ttype">text</field>
+    </record>
+
+    <record id="field_x_active_view" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_active_view</field>
+        <field name="field_description">Active View</field>
+        <field name="ttype">selection</field>
+        <field name="selection">[('main','Main'),('violations','Violations')]</field>
+    </record>
+
+    <record id="field_x_error_message" model="ir.model.fields">
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="name">x_error_message</field>
+        <field name="field_description">Error</field>
+        <field name="ttype">char</field>
+    </record>
+
+    <!-- ── Default Record ─────────────────────────────────────────────── -->
+    <!-- Pre-create one record so the form opens immediately on menu click -->
+    <data noupdate="1">
+    <record id="skynet_scanner_default" model="x_odoo_skynetaccessibility_scanner">
+        <field name="x_name">SkynetAccessibility Scanner</field>
+    </record>
+    </data>
+</odoo>

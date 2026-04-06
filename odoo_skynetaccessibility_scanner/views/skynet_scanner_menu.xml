@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Main app menu (top 9-dot grid) -->
+    <menuitem
+        id="menu_skynet_root"
+        name="SkynetAccessibility Scanner"
+        sequence="100"
+        web_icon="odoo_skynetaccessibility_scanner,static/src/img/icon.png"/>
+
+    <menuitem
+        id="menu_skynet_scanner"
+        name="My Scans"
+        parent="menu_skynet_root"
+        action="action_open_skynet_scanner"
+        sequence="10"/>
+
+</odoo>
