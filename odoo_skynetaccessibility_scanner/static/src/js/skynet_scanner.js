@@ -268,7 +268,7 @@ async function saveToOdoo(recordId, values) {
             body: JSON.stringify({
                 jsonrpc: "2.0", method: "call",
                 params: {
-                    model: "x_skynet_accessibility_scanner",
+                    model: "x_odoo_skynetaccessibility_scanner",
                     method: "write",
                     args: [[recordId], values],
                     kwargs: {},
@@ -456,7 +456,7 @@ function renderLastScanned() {
     if (us < 2) {
         el.innerHTML = `
             <span class="status-inactive">
-                <img src="/skynet_accessibility_scanner/static/src/img/assets/not-shared.svg"
+                <img src="/odoo_skynetaccessibility_scanner/static/src/img/assets/not-shared.svg"
                      alt="" title="Not Started"
                      style="height:16px;width:16px;vertical-align:middle;margin-right:4px;"
                      onerror="this.style.display='none'">
@@ -465,7 +465,7 @@ function renderLastScanned() {
     } else if (ss === 0) {
         el.innerHTML = `
             <span class="status-inactive">
-                <img src="/skynet_accessibility_scanner/static/src/img/assets/not-shared.svg"
+                <img src="/odoo_skynetaccessibility_scanner/static/src/img/assets/not-shared.svg"
                      alt="" title="Not Started"
                      style="height:16px;width:16px;vertical-align:middle;margin-right:4px;"
                      onerror="this.style.display='none'">
@@ -474,7 +474,7 @@ function renderLastScanned() {
     } else if (ss === 1 || ss === 2) {
         el.innerHTML = `
             <span class="status-inactive">
-                <img src="/skynet_accessibility_scanner/static/src/img/assets/not-shared.svg"
+                <img src="/odoo_skynetaccessibility_scanner/static/src/img/assets/not-shared.svg"
                      alt="" title="Scanning in process"
                      style="height:16px;width:16px;vertical-align:middle;margin-right:4px;"
                      onerror="this.style.display='none'">
