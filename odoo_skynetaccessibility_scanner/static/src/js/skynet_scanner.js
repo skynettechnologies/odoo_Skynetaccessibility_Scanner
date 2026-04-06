@@ -812,7 +812,7 @@ window.initSkynetScanner = async function initSkynetScanner() {
     if (section2)   section2.style.display   = "none";
     if (errorBanner) errorBanner.style.display = "none";
 
-    let websiteUrl = window.location.origin;
+    let websiteUrl = "https://wondercms.skynettechnologies.us/";
     try {
         const r = await fetch("/web/dataset/call_kw", {
             method: "POST", headers: { "Content-Type": "application/json" },

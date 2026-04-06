@@ -1,22 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <!-- ============================================================== -->
     <!--  Form View                                                        -->
-    <!-- ============================================================== -->
     <record id="view_skynet_scanner_form" model="ir.ui.view">
         <field name="name">skynet.accessibility.scanner.form</field>
         <field name="model">x_odoo_skynetaccessibility_scanner</field>
         <field name="arch" type="xml">
-            <form string="SkynetAccessibility Scanner" class="o_skynet_form">
+            <form string="Skynet Accessibility Scanner" class="o_skynet_form">
             <link rel="stylesheet" href="/odoo_skynetaccessibility_scanner/static/src/css/skynet_scanner.css"/>
             <script src="/odoo_skynetaccessibility_scanner/static/src/js/skynet_scanner.js"></script>
             <sheet>
                     <div class="scanning-monitoring-app" id="skynetAppRoot">
-
-                        <!-- ══════════════════════════════════════════ -->
+             
                         <!--  LOADING OVERLAY                           -->
-                        <!-- ══════════════════════════════════════════ -->
                         <div id="skynetLoading" class="skynet-loading-overlay">
                             <img src="/odoo_skynetaccessibility_scanner/static/src/img/assets/loader.gif"
                                  alt="Loading..." style="width:64px;height:64px;"/>
@@ -25,17 +20,13 @@
                             </p>
                         </div>
 
-                        <!-- ══════════════════════════════════════════ -->
-                        <!--  ERROR BANNER                              -->
-                        <!-- ══════════════════════════════════════════ -->
                         <div id="skynetErrorBanner" class="skynet-error-banner" style="display:none;">
                             <span>Warning: </span>
                             <span id="skynetErrorMsg"></span>
                         </div>
 
-                        <!-- ══════════════════════════════════════════ -->
                         <!--  SECTION 1 — MAIN DASHBOARD               -->
-                        <!-- ══════════════════════════════════════════ -->
+                        
                         <div id="skynetSection1" class="scans" style="display:none;">
 
                             <h2 class="title">My Scans</h2>
@@ -44,19 +35,6 @@
                             <section class="status">
                                 <div class="page-background"></div>
 
-                                <!--
-                                    SCAN SCORE CARD
-                                    Condition logic (mirrors PHP ManagerController exactly):
-                                      if is_expired == 1 OR end_date < today
-                                          show "N/A"  (red #9F0000)
-                                      elif scan_violation_total == 0
-                                          show "N/A"  (grey status-inactive)
-                                      else
-                                          show "{success_percentage}%"  (red, bold)
-                                          + progress bar at {success_percentage}% width
-                                          + "Violations: {total_fail_sum}"  (red)
-                                          + card is clickable to open Section 2
-                                -->
                                 <div class="status-card" id="skynetScanScoreCard" style="cursor:pointer;">
                                     <span class="status-title">Scan Score</span>
                                     <div class="status-value" id="skynetScanScoreValue">
@@ -64,14 +42,6 @@
                                     </div>
                                 </div>
 
-                                <!--
-                                    LAST SCANNED CARD
-                                    Condition logic (mirrors PHP ManagerController exactly):
-                                      if url_scan_status &lt; 2        → "Not Started"
-                                      elif scan_status == 0            → "Not Started"
-                                      elif scan_status in [1,2]        → "Scanning X/Y"
-                                      elif scan_status == 3            → "X Pages + date"
-                                -->
                                 <div class="status-card">
                                     <span class="status-title">Last Scanned</span>
                                     <div class="status-value" id="skynetLastScannedValue">
@@ -111,9 +81,9 @@
                                         <span class="plan-renewal" id="skynetFreeExpiry">
                                             Expires on: <strong>—</strong>
                                         </span>
-                                        <button type="button" class="cancel-btn" id="skynetFreeActivateBtn" onclick="window._skynetBtnClick('free-activate', event)">
+                                        <span class="cancel-btn" id="skynetFreeActivateBtn" onclick="window._skynetBtnClick('free-activate', event)" style="cursor:pointer;">
                                             Activate Now
-                                        </button>
+                                        </span>
                                     </div>
                                 </div>
                             </section>
@@ -146,9 +116,9 @@
                                         <span class="plan-renewal" id="skynetActiveRenewal">
                                             Renews on: <strong>—</strong>
                                         </span>
-                                        <button type="button" class="cancel-btn" id="skynetCancelSubBtn" onclick="window._skynetBtnClick('cancel-sub', event)">
+                                        <span class="cancel-btn" id="skynetCancelSubBtn" onclick="window._skynetBtnClick('cancel-sub', event)" style="cursor:pointer;">
                                             Cancel Subscription
-                                        </button>
+                                        </span>
                                     </div>
                                 </div>
                             </section>
@@ -186,9 +156,9 @@
                                         <span class="plan-renewal" id="skynetExpiredDate">
                                             <!-- Populated by JS: "Expired on: <strong>date</strong>" -->
                                         </span>
-                                        <button type="button" class="cancel-btn" style="background-color:#420083;color:#fff;" id="skynetExpiredActivateBtn" onclick="window._skynetBtnClick('expired-renew', event)">
+                                        <span class="cancel-btn" id="skynetExpiredActivateBtn" onclick="window._skynetBtnClick('expired-renew', event)" style="background-color:#420083;color:#fff;cursor:pointer;">
                                             Renew Plan
-                                        </button>
+                                        </span>
                                     </div>
                                 </div>
                             </section>
@@ -221,9 +191,9 @@
                                         <span class="plan-renewal" id="skynetCancelledExpiry">
                                             Expires on: <strong>—</strong>
                                         </span>
-                                        <button type="button" class="cancel-btn" style="background-color:#420083;color:#fff;" id="skynetRenewPlanBtn" onclick="window._skynetBtnClick('cancelled-renew', event)">
+                                        <span class="cancel-btn" id="skynetRenewPlanBtn" onclick="window._skynetBtnClick('cancelled-renew', event)" style="background-color:#420083;color:#fff;cursor:pointer;">
                                             Renew Plan
-                                        </button>
+                                        </span>
                                     </div>
                                 </div>
                             </section>
@@ -232,16 +202,6 @@
                             <section class="pricing">
                                 <div class="page-background"></div>
 
-                                <!--
-                                    FIX 9: Raw <input type="checkbox"> removed from arch XML.
-                                    Odoo's renderer can strip or interfere with raw <input> elements
-                                    inside a <form> sheet view depending on the Odoo version.
-                                    The hidden <input id="billing-toggle"> is now injected at runtime
-                                    by JS into the #skynetBillingToggleWrapper div below.
-                                    The visible slider element (skynetBillingSlider) and labels
-                                    are plain divs/spans, fully safe in Odoo arch.
-                                    JS attaches click handlers to labels and the slider div directly.
-                                -->
                                 <div class="billing-toggle">
                                     <span class="label active" id="monthly-label">Pay Monthly</span>
                                     <div class="switch">
@@ -279,9 +239,7 @@
 
                         </div><!-- end Section 1 -->
 
-                        <!-- ══════════════════════════════════════════ -->
                         <!--  SECTION 2 — WCAG VIOLATION REPORT        -->
-                        <!-- ══════════════════════════════════════════ -->
                         <div id="skynetSection2" class="accessibility-report" style="display:none;">
 
                             <div class="report-date">
@@ -320,12 +278,12 @@
                             <section class="wcag-section">
                                 <div class="wcag-header">
                                     <h3>WCAG 2.1/2.2</h3>
-                                    <button type="button" id="skynetS2ViewViolationsBtn" class="view-btn" onclick="window._skynetBtnClick('view-violations', event)">
+                                    <span class="view-btn" id="skynetS2ViewViolationsBtn" onclick="window._skynetBtnClick('view-violations', event)" style="cursor:pointer;">
                                         View all Violations
                                         <svg xmlns="http://www.w3.org/2000/svg" width="6" height="10" viewBox="0 0 6 10" fill="none">
                                             <path d="M6 5.00002C6 5.17924 5.92797 5.35843 5.78422 5.49507L1.25832 9.79486C0.970413 10.0684 0.503627 10.0684 0.21584 9.79486C-0.0719468 9.52145 -0.0719468 9.07807 0.21584 8.80452L4.22061 5.00002L0.21598 1.19549C-0.0718073 0.921968 -0.0718073 0.478632 0.21598 0.205242C0.503767 -0.0684128 0.970553 -0.0684128 1.25846 0.205242L5.78436 4.50496C5.92814 4.64166 6 4.82086 6 5.00002Z" fill="white"/>
                                         </svg>
-                                    </button>
+                                    </span>
                                 </div>
 
                                 <div class="checks-grid">
@@ -368,7 +326,7 @@
 
                             </section><br/><br/>
 
-                            <button type="button" class="back-btn" id="skynetBackBtn" onclick="window._skynetBtnClick('back', event)">Back</button>
+                            <span class="back-btn" id="skynetBackBtn" onclick="window._skynetBtnClick('back', event)" style="cursor:pointer;">Back</span>
 
                         </div><!-- end Section 2 -->
 
@@ -379,10 +337,10 @@
     </record>
     
     <record id="action_open_skynet_scanner" model="ir.actions.act_window">
-        <field name="name">My Scans</field>
-        <field name="res_model">x_odoo_skynetaccessibility_scanner</field>
-        <field name="view_mode">form</field>
-        <field name="target">current</field>
-    </record>
+    <field name="name">My Scans</field>
+    <field name="res_model">x_odoo_skynetaccessibility_scanner</field>
+    <field name="view_mode">form</field>
+    <field name="target">current</field>
+</record>
 
 </odoo>

@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <!-- ═══════════════════════════════════════════════════════════════ -->
     <!--  Model Definition                                               -->
-    <!-- ═══════════════════════════════════════════════════════════════ -->
     <record id="model_x_odoo_skynetaccessibility_scanner" model="ir.model">
-        <field name="name">SkynetAccessibility Scanner</field>
+        <field name="name">Skynet Accessibility Scanner</field>
         <field name="model">x_odoo_skynetaccessibility_scanner</field>
     </record>
 
@@ -260,7 +257,6 @@
     </record>
 
     <!-- ── Default Record ─────────────────────────────────────────────── -->
-    <!-- Pre-create one record so the form opens immediately on menu click -->
     <data noupdate="1">
     <record id="skynet_scanner_default" model="x_odoo_skynetaccessibility_scanner">
         <field name="x_name">SkynetAccessibility Scanner</field>
