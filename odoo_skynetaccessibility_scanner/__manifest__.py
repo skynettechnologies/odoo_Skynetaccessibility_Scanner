@@ -10,11 +10,11 @@
     'depends': ['base', 'web'],
     'data': [
         'models/skynet_scanner_model.xml',
-        'security/ir.model.access.csv',      
+        'security/ir.access.csv',
         'views/skynet_scanner_views.xml',    
         'views/skynet_scanner_menu.xml',     
+        'views/skynet_cleanup.xml',
     ],
-    'images': ['/static/description/banner.jpg'],
     'installable': True,
     'auto_install': False,
     'application': True,

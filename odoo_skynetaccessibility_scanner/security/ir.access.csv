@@ -1,0 +1,2 @@
+id,name,model_id/id,group_id/id,operation
+access_skynet_scanner,access_skynet_scanner,model_x_odoo_skynetaccessibility_scanner,base.group_user,crud

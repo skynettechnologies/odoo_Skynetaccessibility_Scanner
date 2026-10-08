@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- One-time cleanup: the landing page was removed, so clear it as the
+         home action of any user it was assigned to (they land on the default
+         app again). Does nothing on a fresh install. -->
+    <function model="res.users" name="write">
+        <value model="res.users" search="[('action_id.name', '=', 'Skynet Technologies')]"/>
+        <value eval="{'action_id': False}"/>
+    </function>
+</odoo>

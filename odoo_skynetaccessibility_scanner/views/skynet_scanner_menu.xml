@@ -1,18 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Main app menu (top 9-dot grid) -->
+    <!--
+        Opens the scanner page (form) of the single scanner record, creating it
+        on first use. Same behaviour as the Odoo 19 app: clicking the app opens
+        the scanner page directly. Runs as the clicking user.
+    -->
+    <record id="action_open_skynet_scanner_page" model="ir.actions.server">
+        <field name="name">My Scans</field>
+        <field name="model_id" ref="model_x_odoo_skynetaccessibility_scanner"/>
+        <field name="state">code</field>
+        <field name="code"><![CDATA[
+Scanner = env['x_odoo_skynetaccessibility_scanner']
+record = Scanner.search([], limit=1)
+if not record:
+    record = Scanner.create({'x_name': 'SkynetAccessibility Scanner'})
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'My Scans',
+    'res_model': 'x_odoo_skynetaccessibility_scanner',
+    'res_id': record.id,
+    'view_mode': 'form',
+    'views': [[False, 'form']],
+    'target': 'current',
+}
+]]></field>
+    </record>
+
+    <!-- Main app menu: clicking the app opens the scanner page directly -->
     <menuitem
         id="menu_skynet_root"
         name="SkynetAccessibility Scanner"
         sequence="100"
+        action="action_open_skynet_scanner_page"
         web_icon="odoo_skynetaccessibility_scanner,static/src/img/icon.png"/>
 
     <menuitem
         id="menu_skynet_scanner"
         name="My Scans"
         parent="menu_skynet_root"
-        action="action_open_skynet_scanner"
+        action="action_open_skynet_scanner_page"
         sequence="10"/>
 
 </odoo>
