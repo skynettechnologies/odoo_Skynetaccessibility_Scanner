@@ -15,6 +15,7 @@
         'views/skynet_scanner_menu.xml',     
         'views/skynet_cleanup.xml',
     ],
+    'images': ['static/description/banner.jpg'],
     'installable': True,
     'auto_install': False,
     'application': True,
