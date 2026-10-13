@@ -25,6 +25,63 @@
                             <span id="skynetErrorMsg"></span>
                         </div>
 
+                        <!-- ══════════════════════════════════════════ -->
+                        <!--  EMAIL REMINDER BANNER + POPUP             -->
+                        <!--  Shown only when the registered domain has -->
+                        <!--  no valid email (empty / no-reply@domain)  -->
+                        <!-- ══════════════════════════════════════════ -->
+                        <div id="skynetEmailBanner" class="skynet-email-banner" style="display:none;">
+                            <span class="skynet-email-banner-text">
+                                Please enter your email for further scanning reports.
+                            </span>
+                            <span role="button" tabindex="0" class="skynet-email-toggle-btn" style="cursor:pointer;"
+                                  onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"
+                                  onclick="window._skynetOpenEmailPopup(event)">Add Email</span>
+                        </div>
+
+                        <div id="skynetEmailModal" class="skynet-modal-overlay" style="display:none;"
+                             role="dialog" aria-modal="true" aria-labelledby="skynetEmailModalTitle"
+                             onclick="if(event.target===this){window._skynetCloseEmailPopup(event,true);}">
+                            <div class="skynet-modal-box">
+                                <span role="button" tabindex="0" class="skynet-modal-close" aria-label="Close" style="cursor:pointer;"
+                                      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"
+                                      onclick="window._skynetCloseEmailPopup(event,true)">&#215;</span>
+                                <h3 id="skynetEmailModalTitle" class="skynet-email-form-title">Register Your Details</h3>
+                                <p class="skynet-modal-sub">
+                                    No valid email is registered for this domain. Please enter your
+                                    email to receive further scanning reports.
+                                </p>
+                                <div id="skynetEmailFormError" class="skynet-email-form-error" style="display:none;"></div>
+                                <div id="skynetEmailFormSuccess" class="skynet-email-form-success" style="display:none;"></div>
+                                <div class="skynet-email-form-row">
+                                    <span class="skynet-email-form-label">Full Name <span style="color:#e53e3e;">*</span></span>
+                                    <!-- JS injects: <input id="skynetRegName" type="text"/> -->
+                                    <div id="skynetRegNameWrap"></div>
+                                </div>
+                                <div class="skynet-email-form-row">
+                                    <span class="skynet-email-form-label">Email Address <span style="color:#e53e3e;">*</span></span>
+                                    <!-- JS injects: <input id="skynetRegEmail" type="email"/> -->
+                                    <div id="skynetRegEmailWrap"></div>
+                                </div>
+                                <div class="skynet-email-form-actions">
+                                    <span id="skynetRegSaveBtn" role="button" tabindex="0" class="skynet-email-save-btn" style="cursor:pointer;"
+                                          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"
+                                          onclick="window._skynetSaveEmail(event)">
+                                        <span id="skynetRegSaveBtnText">Save</span>
+                                        <svg id="skynetRegSaveSpinner" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             viewBox="0 0 24 24" fill="none"
+                                             style="display:none;margin-left:8px;animation:skynet-spin 0.8s linear infinite;">
+                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"
+                                                    stroke-dasharray="31.4" stroke-dashoffset="10"/>
+                                        </svg>
+                                    </span>
+                                    <span role="button" tabindex="0" class="skynet-email-cancel-btn" style="cursor:pointer;"
+                                          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"
+                                          onclick="window._skynetCloseEmailPopup(event,true)">Later</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <!--  SECTION 1 — MAIN DASHBOARD               -->
                         
                         <div id="skynetSection1" class="scans" style="display:none;">
