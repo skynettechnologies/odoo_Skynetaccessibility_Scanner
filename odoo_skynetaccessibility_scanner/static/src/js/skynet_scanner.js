@@ -11,6 +11,7 @@ const SCAN_DETAIL_API   = `${SKYNET_BASE_URL}/api/get-scan-detail`;
 const SCAN_COUNT_API    = `${SKYNET_BASE_URL}/api/get-scan-count`;
 const PACKAGES_LIST_API = `${SKYNET_BASE_URL}/api/packages-list`;
 const ACTION_LINK_API   = `${SKYNET_BASE_URL}/api/generate-plan-action-link`;
+const UPDATE_USER_API   = `${SKYNET_BASE_URL}/api/update-user`;
 const PLATFORM          = "odoo";
 
 const PLAN_ICONS = [
@@ -21,6 +22,12 @@ const PLAN_ICONS = [
 ];
 
 const appData = {
+    userId:              "",
+    userDataId:          "",
+    userDataName:        "",
+    userDataEmail:       "",
+    userDataCompany:     "",
+    userDataWebsite:     "",
     domain:              "",
     websiteUrl:          "",
     websiteId:           "",
@@ -218,6 +225,87 @@ function getRecordId() {
     return null;
 }
 
+/* ── Domain validation (same rules as the Wagtail module) ───────────── */
+const INVALID_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "0.0.0.0"]);
+
+function isInvalidDomain(hostname) {
+    if (!hostname) return true;
+    const h = String(hostname).trim().toLowerCase();
+    if (!h) return true;
+    if (INVALID_HOSTS.has(h)) return true;
+    if (h === "localhost" || h.endsWith(".localhost")) return true;
+    if (h.includes(":")) return true;                       // IPv6 / host:port
+    const ipv4 = h.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+    if (ipv4) {
+        const [, a, b] = ipv4.map(Number);
+        if (a === 10 || a === 127 || a === 0 ||
+            (a === 172 && b >= 16 && b <= 31) ||
+            (a === 192 && b === 168) ||
+            (a === 169 && b === 254)) return true;          // private / loopback / link-local
+    }
+    // Must look like a real hostname: labels separated by dots, valid TLD
+    if (!/^(?=.{1,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/.test(h)
+        && !ipv4) return true;
+    return false;
+}
+
+function showDomainError(message) {
+    stopScanPolling();
+    const loadingEl   = document.getElementById("skynetLoading");
+    const section1    = document.getElementById("skynetSection1");
+    const section2    = document.getElementById("skynetSection2");
+    const errorBanner = document.getElementById("skynetErrorBanner");
+    const errorMsg    = document.getElementById("skynetErrorMsg");
+    if (loadingEl) loadingEl.style.display = "none";
+    if (section1)  section1.style.display  = "none";
+    if (section2)  section2.style.display  = "none";
+    if (errorMsg)  errorMsg.textContent    = message;
+    if (errorBanner) errorBanner.style.display = "block";
+}
+
+function b64EncodeUrl(url) {
+    try { return btoa(unescape(encodeURIComponent(url))); }
+    catch (e) { return btoa(url); }
+}
+
+function fmtDate(val) {
+    if (!val || val === "undefined" || val === "null") return "—";
+    const d = new Date(val);
+    if (isNaN(d)) return "—";
+    const months = ["January","February","March","April","May","June",
+                    "July","August","September","October","November","December"];
+    const day = d.getDate();        // ← removed UTC
+    return `${months[d.getMonth()]} ${day} ${d.getFullYear()}`;  // ← removed UTC
+}
+
+function getTodayStr() {
+    return new Date().toISOString().slice(0, 10);
+}
+
+function getRecordId() {
+    const h = window.location.hash.match(/[?&]id=(\d+)/);
+    if (h) return parseInt(h[1], 10);
+    const p = window.location.pathname.match(/\/(\d+)$/);
+    if (p) return parseInt(p[1], 10);
+    return null;
+}
+
+function stopScanPolling() {
+    if (window.__skynetPollTimer) {
+        clearInterval(window.__skynetPollTimer);
+        window.__skynetPollTimer = null;
+    }
+}
+
+function isValidEmail(value) {
+    return typeof value === "string"
+        && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
+}
+
+function resolveEmail(candidate, domain) {
+    return isValidEmail(candidate) ? candidate.trim() : `no-reply@${domain}`;
+}
+
 async function getOdooUserInfo(fallbackDomain) {
     let uid = null, name = "", email = "", phone = "";
     try {
@@ -229,7 +317,7 @@ async function getOdooUserInfo(fallbackDomain) {
         const info = d?.result || {};
         uid   = info.uid      || null;
         name  = info.name     || "";
-        email = info.username || "";
+        email = isValidEmail(info.username) ? info.username : "";
     } catch (e) {}
 
     if (uid) {
@@ -248,17 +336,177 @@ async function getOdooUserInfo(fallbackDomain) {
             const d = await r.json();
             const u = (d?.result || [])[0] || {};
             if (u.name)  name  = u.name;
-            if (u.email) email = u.email;
-            else if (u.login?.includes("@")) email = u.login;
+            if (isValidEmail(u.email)) email = u.email;
+            else if (isValidEmail(u.login)) email = u.login;
             if (u.phone) phone = u.phone;
         } catch (e) {}
     }
     return {
         name:  name  || fallbackDomain,
-        email: email || `no-reply@${fallbackDomain}`,
+        email: resolveEmail(email, fallbackDomain),
         phone: phone || "",
     };
 }
+
+/* ── Email popup (no valid email registered on the domain) ─────────── */
+const SKYNET_EMAIL_DISMISS_KEY = "skynetEmailPopupDismissed";
+
+function needsEmailRegistration() {
+    const email = (appData.userDataEmail || "").trim();
+    return !isValidEmail(email) || email.toLowerCase().startsWith("no-reply@");
+}
+
+function _skynetGetModal() {
+    /* Remove stale copies moved to <body> by a previous form render */
+    const all = document.querySelectorAll("#skynetEmailModal");
+    let modal = null;
+    all.forEach(function (el) {
+        if (!modal && document.getElementById("skynetAppRoot") &&
+            (el.parentNode === document.body || document.getElementById("skynetAppRoot").contains(el))) {
+            modal = el;
+        }
+    });
+    if (modal && modal.parentNode !== document.body) {
+        modal.setAttribute("data-skynet-moved", "1");
+        document.body.appendChild(modal);   /* escape transformed/overflow parents */
+    }
+    return modal;
+}
+
+function _skynetResetEmailForm() {
+    ["skynetRegName", "skynetRegEmail"].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove("skynet-input-error");
+    });
+    ["skynetEmailFormError", "skynetEmailFormSuccess"].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) el.style.display = "none";
+    });
+}
+
+function _skynetHandleEmailPopup() {
+    const banner = document.getElementById("skynetEmailBanner");
+    if (!needsEmailRegistration()) {
+        if (banner) banner.style.display = "none";
+        window._skynetCloseEmailPopup();
+        return;
+    }
+    if (banner) banner.style.display = "flex";
+
+    let dismissed = false;
+    try { dismissed = sessionStorage.getItem(SKYNET_EMAIL_DISMISS_KEY) === "1"; } catch (e) {}
+    if (!dismissed) window._skynetOpenEmailPopup();
+}
+
+window._skynetOpenEmailPopup = function _skynetOpenEmailPopup(e) {
+    if (e) e.preventDefault();
+    const modal = _skynetGetModal();
+    if (!modal) return;
+    _skynetResetEmailForm();
+    modal.style.display = "flex";
+    const emailInput = document.getElementById("skynetRegEmail");
+    const nameInput  = document.getElementById("skynetRegName");
+    setTimeout(function () {
+        const target = (nameInput && !nameInput.value) ? nameInput : emailInput;
+        if (target) target.focus();
+    }, 50);
+};
+
+window._skynetCloseEmailPopup = function _skynetCloseEmailPopup(e, remember) {
+    if (e) e.preventDefault();
+    const modal = document.getElementById("skynetEmailModal");
+    if (modal) modal.style.display = "none";
+    if (remember) {
+        try { sessionStorage.setItem(SKYNET_EMAIL_DISMISS_KEY, "1"); } catch (err) {}
+    }
+};
+
+window._skynetSaveEmail = async function _skynetSaveEmail(e) {
+    if (e) e.preventDefault();
+
+    const nameInput  = document.getElementById("skynetRegName");
+    const emailInput = document.getElementById("skynetRegEmail");
+    const errEl      = document.getElementById("skynetEmailFormError");
+    const okEl       = document.getElementById("skynetEmailFormSuccess");
+    const saveBtn    = document.getElementById("skynetRegSaveBtn");
+    const saveTxt    = document.getElementById("skynetRegSaveBtnText");
+    const spinner    = document.getElementById("skynetRegSaveSpinner");
+
+    _skynetResetEmailForm();
+
+    const name  = (nameInput  && nameInput.value.trim())  || "";
+    const email = (emailInput && emailInput.value.trim()) || "";
+    let hasError = false;
+    if (!name)                 { nameInput  && nameInput.classList.add("skynet-input-error");  hasError = true; }
+    if (!isValidEmail(email))  { emailInput && emailInput.classList.add("skynet-input-error"); hasError = true; }
+    if (hasError) {
+        if (errEl) { errEl.textContent = "Please enter a valid name and email address."; errEl.style.display = "block"; }
+        return;
+    }
+
+    if (saveBtn) saveBtn.disabled = true;
+    if (saveTxt) saveTxt.textContent = "Saving…";
+    if (spinner) spinner.style.display = "inline-block";
+
+    try {
+        const resolvedUserId = appData.userId || appData.userDataId;
+        if (!resolvedUserId) {
+            throw new Error("Unable to retrieve user ID. Please refresh the page and try again.");
+        }
+        const domain = appData.domain || appData.websiteUrl;
+
+        const form = new FormData();
+        form.append("user_id",      String(resolvedUserId));
+        form.append("name",         name);
+        form.append("email",        email);
+        form.append("comapny_name", appData.userDataCompany || domain); /* API typo kept intentionally */
+        form.append("website",      appData.userDataWebsite || domain);
+
+        const resp = await fetch(UPDATE_USER_API, { method: "POST", body: form });
+        if (!resp.ok) {
+            let errMsg = `Update User API HTTP ${resp.status}`;
+            try {
+                const ej = await resp.json();
+                const raw = ej.msg || ej.message || ej.error || "";
+                if (typeof raw === "string" && raw) errMsg = raw;
+            } catch (_) {}
+            throw new Error(errMsg);
+        }
+        let json;
+        try { json = await resp.json(); }
+        catch (_) { throw new Error("Invalid response from Update User API"); }
+        if (String(json.status) !== "1") {
+            const raw = json.msg || json.message || json.error || "";
+            throw new Error((typeof raw === "string" && raw) ? raw : "Update failed. Please try again.");
+        }
+
+        appData.userDataEmail = email;
+        appData.userDataName  = name;
+        if (okEl) { okEl.textContent = "Email registered successfully!"; okEl.style.display = "block"; }
+        setTimeout(function () {
+            window._skynetCloseEmailPopup();
+            const banner = document.getElementById("skynetEmailBanner");
+            if (banner) banner.style.display = "none";
+        }, 1200);
+    } catch (err) {
+        let msg = "Update failed. Please try again.";
+        if (err instanceof Error)          msg = err.message || msg;
+        else if (typeof err === "string")  msg = err;
+        else if (err && typeof err === "object") msg = err.msg || err.message || err.error || JSON.stringify(err);
+        if (errEl) { errEl.textContent = msg; errEl.style.display = "block"; }
+    } finally {
+        if (saveBtn) saveBtn.disabled = false;
+        if (saveTxt) saveTxt.textContent = "Save";
+        if (spinner) spinner.style.display = "none";
+    }
+};
+
+document.addEventListener("keydown", function (ev) {
+    if (ev.key === "Escape") {
+        const m = document.getElementById("skynetEmailModal");
+        if (m && m.style.display !== "none") window._skynetCloseEmailPopup(null, true);
+    }
+});
 
 async function saveToOdoo(recordId, values) {
     if (!recordId) return;
@@ -284,7 +532,7 @@ async function registerDomain(websiteUrl, userInfo, domain) {
     form.append("platform",        PLATFORM);
     form.append("is_trial_period", "1");
     form.append("name",            userInfo.name  || domain);
-    form.append("email",           userInfo.email || `no-reply@${domain}`);
+    form.append("email",           resolveEmail(userInfo.email, domain));
     form.append("company_name",    domain);
     form.append("package_type",    "25-pages");
     const resp = await fetch(REGISTER_API, { method: "POST", body: form });
@@ -330,6 +578,15 @@ async function fetchScanDetail(websiteUrl) {
     appData.dashboardLink      = json.dashboard_link     || "";
     appData.totalFailSum       = data.total_fail_sum     || "";
     appData.isExpired          = data.is_expired         || "";
+    appData.userId             = data.user_id ? String(data.user_id) : appData.userId || "";
+
+    const ud = json.userData || {};
+    appData.userDataId      = ud.id           ? String(ud.id) : appData.userDataId   || "";
+    appData.userDataName    = ud.name         || appData.userDataName    || "";
+    appData.userDataEmail   = ud.email        || appData.userDataEmail   || "";
+    appData.userDataCompany = ud.company_name || appData.userDataCompany || "";
+    appData.userDataWebsite = ud.website      || appData.userDataWebsite || "";
+    if (!appData.userId && appData.userDataId) appData.userId = appData.userDataId;
     return json;
 }
 
@@ -478,13 +735,13 @@ function renderLastScanned() {
                      alt="" title="Scanning in process"
                      style="height:16px;width:16px;vertical-align:middle;margin-right:4px;"
                      onerror="this.style.display='none'">
-                Scanning<br>${appData.totalScanPages}/${appData.totalSelectedPages}
+                Scanning<br>${getScannedPages()}/${appData.totalSelectedPages}
             </span>`;
     } else if (ss >= 3) {
         const dateStr = appData.lastScan ? fmtDate(appData.lastScan) : "";
         el.innerHTML = `
             <span class="status-active">
-                ${appData.totalScanPages} Pages<br>${dateStr}
+                ${getScannedPages()} Pages<br>${dateStr}
             </span>`;
     } else {
         el.innerHTML = `<span class="status-inactive">Not Started</span>`;
@@ -786,6 +1043,42 @@ function renderViolationReport() {
     if (lvlAAA) lvlAAA.textContent = crit.AAA ?? 0;
 }
 
+function getScannedPages() {
+    // Same logic as the Wagtail module: prefer the last-scan page count,
+    // fall back to the running total, then 0.
+    const raw   = appData.totalLastScanPages || appData.totalScanPages || 0;
+    const done  = parseInt(raw) || 0;
+    const total = parseInt(appData.totalSelectedPages) || 0;
+    return total > 0 ? Math.min(done, total) : done;
+}
+
+function isScanInProgress() {
+    const us = parseInt(appData.urlScanStatus) || 0;
+    const ss = parseInt(appData.scanStatus)    || 0;
+    return us >= 2 && (ss === 1 || ss === 2);
+}
+
+function startScanPolling() {
+    stopScanPolling();
+    if (!isScanInProgress()) return;
+    window.__skynetPollTimer = setInterval(async () => {
+        if (!document.getElementById("skynetLastScannedValue")) {
+            stopScanPolling();
+            return;
+        }
+        try {
+            const json = await fetchScanDetail(appData.websiteUrl);
+            console.debug("[Skynet] scan progress", json && json.data && json.data[0]);
+        } catch (e) {
+            return;
+        }
+        renderScanScore();
+        renderLastScanned();
+        renderViolationReport();
+        if (!isScanInProgress()) stopScanPolling();
+    }, 5000);
+}
+
 async function handlePlanBtnClick(e) {
     const btn = e.target.closest(".skynet-upgrade-btn");
     if (!btn) return;
@@ -800,6 +1093,11 @@ async function handlePlanBtnClick(e) {
 window.initSkynetScanner = async function initSkynetScanner() {
     const root        = document.getElementById("skynetAppRoot");
     if (!root) return;
+
+    /* drop orphaned popup copies left on <body> by a previous render */
+    document.querySelectorAll("body > #skynetEmailModal[data-skynet-moved]").forEach(function (el) {
+        if (!root.contains(el)) el.remove();
+    });
 
     const loadingEl   = document.getElementById("skynetLoading");
     const errorBanner = document.getElementById("skynetErrorBanner");
@@ -831,6 +1129,15 @@ window.initSkynetScanner = async function initSkynetScanner() {
     let domain = "";
     try { domain = new URL(websiteUrl).hostname; }
     catch (e) { domain = websiteUrl.replace(/^https?:\/\//, "").split("/")[0]; }
+
+    if (isInvalidDomain(domain)) {
+        showDomainError(
+            `"${domain}" is not a valid domain. ` +
+            `Localhost and private IP addresses cannot be scanned. ` +
+            `Please deploy your site to a public domain and access the scanner from there.`
+        );
+        return;
+    }
 
     appData.websiteUrl = websiteUrl;
     appData.domain     = domain;
@@ -904,6 +1211,11 @@ window.initSkynetScanner = async function initSkynetScanner() {
     renderPlanCards("skynetMonthlyTiers", false);
     renderPlanCards("skynetAnnualTiers",  true);
     renderViolationReport();
+
+    startScanPolling();
+
+    /* Show email popup when the registered domain has no valid email */
+    _skynetHandleEmailPopup();
 
     const billingWrapper   = document.getElementById("skynetBillingToggleWrapper");
     const billingSlider    = document.getElementById("skynetBillingSlider");
